@@ -65,10 +65,7 @@ namespace LesserKnown.Manager
         {
             player.SetActive(false);
 
-            if (!won)
-                ui_manager.Game_Lost();
-            else if (won)
-                ui_manager.Game_Won();
+            
         }
 
         private void OnLevelWasLoaded(int level)

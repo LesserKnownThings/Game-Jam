@@ -16,6 +16,7 @@ namespace LesserKnown.Public
         public static int COINS;
         public static int APPLES;
         public static bool IS_FUSIONED;
+        public static int MAX_COLLECTIBLES = 10;
 
         public static bool Lose_Health(int amount)
         {
