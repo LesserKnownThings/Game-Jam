@@ -24,23 +24,6 @@ namespace LesserKnown.Collectibles
             {
                 CharacterController2D player = other.GetComponent<CharacterController2D>();
    
-
-
-                if (player.is_fighter && !is_coin)
-                {
-                    Destroy(gameObject, .5f);
-                    PublicVariables.APPLES++;
-                    playerSource = other.GetComponent<AudioSource>();
-                    anim.SetTrigger("Collect");
-                }
-
-                else if (!player.is_fighter && is_coin)
-                {
-                    Destroy(gameObject, .5f);
-                    PublicVariables.COINS++;
-                    playerSource = other.GetComponent<AudioSource>();
-                    anim.SetTrigger("Collect");
-                }
                     
 
             }

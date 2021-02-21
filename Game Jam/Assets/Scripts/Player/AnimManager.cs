@@ -41,6 +41,10 @@ namespace LesserKnown.Player
             if (Input.GetKeyDown(KeyCode.G))
                 Die_Anim();
 
+            
+                anim.SetBool("VectorUp", controller.direction_vector > 0 && !controller.IsWallFalling());
+                anim.SetBool("VectorDown", controller.direction_vector < 0 && !controller.IsWallFalling());
+            
         }
 
         /// <summary>
@@ -108,7 +112,7 @@ namespace LesserKnown.Player
         /// </summary>
         public void Jump_Anim()
         {
-            anim.SetTrigger("Jump");
+            anim.SetTrigger("Jump");            
         }
 
         /// <summary>

@@ -25,7 +25,7 @@ namespace LesserKnown.Player
         /// This is the CameraFollow script from LesserKnown.Camera attatched to the camera
         /// </summary>
         private CameraFollow cam;
-
+        public GameObject blood_splatter;
 
         [Header("Layers")]
         [Tooltip("Used to detect the terrain")]
@@ -42,12 +42,7 @@ namespace LesserKnown.Player
         /// This is the fall speed modifier
         /// </summary>
         public float fall_modifier;
-
-        [Space(10)]
-        [Header("Objects Holder")]
-        public Transform box_placer;
-        [HideInInspector]
-        public BoxControl current_picked_box;
+        
 
         [Space(10)]
         // private PlayerNetwork player_network;
@@ -92,18 +87,12 @@ namespace LesserKnown.Player
         /// </summary>
         private bool can_pick_up;
 
+        [HideInInspector]
         public bool horizontalEnable;
-
-
-        /// <summary>
-        /// These boundaries detect if the player is touching something and from what direction
-        /// </summary>
-        #region Player Boundaries
-        [Space]
-        [Header("Player Options")]
-        public bool is_active;
-        public bool is_fighter;
-        public GameObject player_indicator;
+        [Space(10)]
+        public float attack_distance = 1f;
+        [HideInInspector]
+        public float direction_vector;
 
 
         [Space(10)]
@@ -120,7 +109,7 @@ namespace LesserKnown.Player
         [Header("Boundaries Left")]
         public Vector2 boundary_size_l;
         public Vector2 boundary_placement_l;
-        #endregion
+
 
         private void Start()
         {
@@ -133,9 +122,7 @@ namespace LesserKnown.Player
             // player_network = GetComponent<PlayerNetwork>();
             p_collider = GetComponent<Collider2D>();
             cam = UnityEngine.Camera.main.GetComponent<CameraFollow>();
-
-            Swap_Character();
-            ChangeLayer();  //--------------------------------------change layer to player/terrain for character can jump head of each other
+          
 
             CharacterController2D[] players = FindObjectsOfType<CharacterController2D>();
 
@@ -144,6 +131,8 @@ namespace LesserKnown.Player
                 if (player != this)
                     other_player = player;
             }
+
+            blood_splatter.SetActive(false);
         }
 
         private void Update()
@@ -167,18 +156,7 @@ namespace LesserKnown.Player
             //This triggers the move animation
             anim_manager.Move(rb.velocity.magnitude > 0 && (IsGrounded() || IsOnPlatform()));
 
-
-            //This is the indicator on top of the player
-            player_indicator.SetActive(is_active);
-
-
-            if (Input.GetKeyDown(KeyCode.C))
-            {
-                Swap_Character();
-                ChangeLayer();  //--------------------------------------change layer to player/terrain for character can jump head of each other
-
-            }
-
+            direction_vector = rb.velocity.y;
         }
 
         /// <summary>
@@ -201,30 +179,8 @@ namespace LesserKnown.Player
         }
 
 
-        /// <summary>
-        /// Swaps the player
-        /// </summary>
-        public void Swap_Character()
-        {
-     
-            is_active = !is_active;
-
-            if (is_active)
-                cam.Set_Camera_Local(transform);
-              
-        }
+      
    
-            void ChangeLayer()// ---------------------change layer to player/terrain for character can jump head of each other
-        {
-            if (is_active)
-            {
-                gameObject.layer = 6;
-            }
-            if (!is_active)
-            {
-                gameObject.layer = 3;
-            }      
-        }
      
         /// <summary>
         /// Move player, also checks for all the movement changes
@@ -232,8 +188,11 @@ namespace LesserKnown.Player
         /// <param name="movement_speed">The player movement speed</param>
         public void Move(float movement_speed)
         {
-            if (wall_jump || anim_manager.Is_Attacking() || anim_manager.Has_Stop_Animation())
+            if (wall_jump || anim_manager.Has_Stop_Animation())
                 return;
+
+            if (anim_manager.Is_Attacking())
+                movement_speed /= 3f;
 
             anim_manager.Climb(false);
             anim_manager.Climb_Stay(false);
@@ -370,11 +329,7 @@ namespace LesserKnown.Player
                 Invoke("Wall_Jump", 0.08f);
   
                 StartCoroutine(DontMove());
-              
-           
             }
-
-
 
             if (!IsGrounded() && !IsOnPlatform())
                 return;
@@ -460,12 +415,8 @@ namespace LesserKnown.Player
             if (collision.tag == "Ladder")
                 can_climb_ladder = true;
 
-            if (collision.tag == "Box")
-            {
-                current_picked_box = collision.gameObject.GetComponent<BoxControl>();
-                can_pick_up = true;
-            }
-            if (collision.tag == "LadderTree" && is_fighter)        // For fighter can climb tree   must a tag "LadderTree"
+          
+            if (collision.tag == "LadderTree")        // For fighter can climb tree   must a tag "LadderTree"
                 can_climb_ladder = true;
 
         }
@@ -475,12 +426,8 @@ namespace LesserKnown.Player
             if (collision.tag == "Ladder")
                 can_climb_ladder = false;
 
-            if (collision.tag == "Box")
-            {
-                current_picked_box = null;
-                can_pick_up = false;
-            }
-            if (collision.tag == "LadderTree" && is_fighter)       // For fighter can climb tree   must a tag "LadderTree"
+           
+            if (collision.tag == "LadderTree")       // For fighter can climb tree   must a tag "LadderTree"
                 can_climb_ladder = false;
         }
 
@@ -489,13 +436,23 @@ namespace LesserKnown.Player
             List<RaycastHit2D> hits = new List<RaycastHit2D>();
 
             if (local_left)
-                Physics2D.Raycast(transform.position, -transform.right, enemy_filter, hits, 1.15f);
+                Physics2D.Raycast(transform.position, -transform.right, enemy_filter, hits, attack_distance);
             else if(!local_left)
-                Physics2D.Raycast(transform.position, transform.right, enemy_filter, hits, 1.15f);
+                Physics2D.Raycast(transform.position, transform.right, enemy_filter, hits, attack_distance);
 
-            
+
             if (hits.Count > 0)
-                hits[0].transform.GetComponent<Enemy_Interface>().Get_Hit(1);
+            {
+                StartCoroutine(Blood_SplatterIE());
+                hits[0].transform.GetComponent<Enemy_Interface>().Get_Hit(1);               
+            }
+        }
+
+        private IEnumerator Blood_SplatterIE()
+        {
+            blood_splatter.SetActive(true);
+            yield return new WaitForSeconds(.5f);
+            blood_splatter.SetActive(false);
         }
 
         #region Warrior Region
@@ -513,11 +470,6 @@ namespace LesserKnown.Player
         {
             if (anim_manager.Has_Stop_Animation() || !can_pick_up)
                 return;
-
-            if (!is_holding_object)
-                current_picked_box.Start_Animation(anim_manager);
-            else
-                current_picked_box.Throw();
 
 
             is_holding_object = !is_holding_object;

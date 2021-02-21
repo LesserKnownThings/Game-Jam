@@ -70,7 +70,7 @@ namespace LesserKnown.Camera
         {
             if(target == null)
             {
-                Debug.LogError("Missing player to follow");
+                Debug.LogError("Camera missing player to follow");
                 return;
             }
 

@@ -61,12 +61,12 @@ namespace LesserKnown.Audio{
             {
                 foreach(CharacterController2D player in AudioManager.Instance.players)
                 {
-                    if (player.is_active && player.IsGrounded())
+                    if (player.IsGrounded())
                     {
                         //Debug.Log("FS terrain!");
                         currentFootsteps = FS_terrain;
                     }
-                    else if(player.is_active && player.IsOnPlatform())
+                    else if(player.IsOnPlatform())
                     {
                         //Debug.Log("Fs plateform !");
                         currentFootsteps = FS_platform;

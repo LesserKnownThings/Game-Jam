@@ -35,9 +35,6 @@ namespace LesserKnown.Player
 
         private void Update()
         {
-            if (!controller.is_active)
-                return;
-
             if (Input.GetKeyDown(jump_key))
                 controller.Jump(jump_force);
 
@@ -46,21 +43,13 @@ namespace LesserKnown.Player
 
             if (Input.GetKeyDown(KeyCode.F))
             {
-                if (controller.is_fighter ||PublicVariables.IS_FUSIONED)
-                    controller.Attack();
-                else if (!controller.is_fighter)
-                    if(!PublicVariables.IS_FUSIONED)
-                        controller.Pickup();
+                controller.Attack();
             }
 
-               
         }
 
         private void FixedUpdate()
         {
-
-            if (!controller.is_active)
-                return;
 
             var h = Input.GetAxisRaw("Horizontal");
             var v = Input.GetAxisRaw("Vertical");

@@ -86,7 +86,6 @@ namespace LesserKnown.Audio
         //Managing the Animator event calls for all anims
         public void PlaySndEvent(AnimManager anim,string call)
         {
-            if(anim.controller.is_active)
                 soundEvtDict[call]();
         }
 
@@ -111,10 +110,7 @@ namespace LesserKnown.Audio
            foreach(CharacterController2D player in players)
            {
                //Debug.Log("Player active is : ");
-               if(player.is_active && player.is_fighter)
                     return playerSources[1];
-                else
-                    return playerSources[0];
            }
            
            return null;
