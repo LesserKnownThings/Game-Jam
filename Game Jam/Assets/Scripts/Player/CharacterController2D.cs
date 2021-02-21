@@ -5,6 +5,8 @@ using LesserKnown.Camera;
 using LesserKnown.TrapsAndHelpers;
 using System.Collections.Generic;
 using LesserKnown.AI;
+using System;
+
 namespace LesserKnown.Player
 {
     /// <summary>
@@ -18,6 +20,7 @@ namespace LesserKnown.Player
         private Collider2D p_collider;
         private SpriteRenderer player_sprite;
         private AnimManager anim_manager;
+        private CharacterController2D other_player;
         /// <summary>
         /// This is the CameraFollow script from LesserKnown.Camera attatched to the camera
         /// </summary>
@@ -133,6 +136,14 @@ namespace LesserKnown.Player
 
             Swap_Character();
             ChangeLayer();  //--------------------------------------change layer to player/terrain for character can jump head of each other
+
+            CharacterController2D[] players = FindObjectsOfType<CharacterController2D>();
+
+            foreach (var player in players)
+            {
+                if (player != this)
+                    other_player = player;
+            }
         }
 
         private void Update()
@@ -260,6 +271,18 @@ namespace LesserKnown.Player
         public void Dead()
         {
             anim_manager.Die_Anim();
+            if(!PublicVariables.IS_FUSIONED)
+            Reset_Position();
+            else
+            {
+                //Lose game ...
+            }
+
+        }
+
+        private void Reset_Position()
+        {
+            transform.position = other_player.transform.position;
         }
 
         public void Get_Hit(int amount)
