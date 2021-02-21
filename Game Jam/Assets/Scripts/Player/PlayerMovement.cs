@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using LesserKnown.Camera;
+using LesserKnown.Public;
 
 namespace LesserKnown.Player
 {
@@ -45,10 +46,11 @@ namespace LesserKnown.Player
 
             if (Input.GetKeyDown(KeyCode.F))
             {
-                if (controller.is_fighter)
+                if (controller.is_fighter ||PublicVariables.IS_FUSIONED)
                     controller.Attack();
                 else if (!controller.is_fighter)
-                    controller.Pickup();
+                    if(!PublicVariables.IS_FUSIONED)
+                        controller.Pickup();
             }
 
                
