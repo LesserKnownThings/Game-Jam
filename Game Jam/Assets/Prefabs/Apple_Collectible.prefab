@@ -113,6 +113,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67117fb68e22db14f947fe76c4d7b454, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  appleSnd:
+  - {fileID: 8300000, guid: 5179bee2fb15c884284263887c5df9f5, type: 3}
+  - {fileID: 8300000, guid: 64e6ec57446fc5840845afa8db3f7906, type: 3}
+  coinSnd:
+  - {fileID: 8300000, guid: 64ef1ee669721b8418d503fbd20f85de, type: 3}
+  - {fileID: 8300000, guid: 95f9e5443ac5c904cb171dbbfa732fdb, type: 3}
+  - {fileID: 8300000, guid: 696e8e62b98216e49aea024b8b90911b, type: 3}
   is_coin: 0
 --- !u!95 &8142032286171110766
 Animator:
