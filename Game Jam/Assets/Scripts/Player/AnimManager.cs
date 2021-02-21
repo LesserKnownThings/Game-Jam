@@ -183,7 +183,7 @@ namespace LesserKnown.Player
         public void PlaySndEvent(string call)
         {
             //Debug.Log("Anim manager Event call");
-            AudioManager.Instance.PlaySndEvent(call);
+            AudioManager.Instance.PlaySndEvent(this,call);
         }
     }
 }

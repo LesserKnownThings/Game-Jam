@@ -11,18 +11,15 @@ namespace LesserKnown.Audio
     public class AudioManager : MonoBehaviour
     {
 
-        //some variables are public for tests only will change to private later
+        [Header(" Players reference")]
+        public CharacterController2D[] players;
 
-        [Header(" Scripts Scene")]
-
-        //public CharacterController2D[] players; //for test
-        public CharacterController2D player;
-
-        [Header(" Scripts Audio")]
+        //[Header(" Scripts Audio")]
         private static AudioManager _instance = null; //singleton
-        public PlayerMovementSounds Snd_playerMvt;
-        public MusicSystem musicSystem;
-        private Dictionary<string, System.Action> snd_EvtDict = new Dictionary<string, System.Action>();
+        private AudioPlayerActions audioPlayerScript;
+        private AudioMusicSystem musicSystemScript;
+        private Dictionary<string, System.Action> soundEvtDict = new Dictionary<string, System.Action>();
+
         
         [Header(" Volume Control")]
         //quick and dirty play music on - off .... eventually ill make a better system for mute/unmute, etc.
@@ -33,22 +30,16 @@ namespace LesserKnown.Audio
 
         [Header(" Audio Sources")]
         public AudioSource[] musicSources;
-
-        //public AudioSource[] playerSources; //for tests
-        public AudioSource playerSource;
-
+        public AudioSource[] playerSources;
+        public AudioSource currentPlayerSource;
 
         void Start()
         {
-            //musicSources = GameObject.Find("Camera").GetComponents<AudioSource>(); //note : why doesnt it work as intended ?
-            musicSources = UnityEngine.Camera.main.GetComponents<AudioSource>(); //this works tho
+            musicSources = UnityEngine.Camera.main.GetComponents<AudioSource>();            
+            audioPlayerScript = GetComponent<AudioPlayerActions>();
+            musicSystemScript = GetComponent<AudioMusicSystem>();
 
-            playerSource = GameObject.FindGameObjectWithTag("Player").GetComponent<AudioSource>();
-            player = GameObject.FindGameObjectWithTag("Player").GetComponent<CharacterController2D>();
-            
-            Snd_playerMvt = GetComponent<PlayerMovementSounds>();
-            musicSystem = GetComponent<MusicSystem>();
-            InitDict();
+            _Init_AudioAnimEventsRefs();
 
             //volume musique speakers 
             foreach (AudioSource s in musicSources)
@@ -56,17 +47,16 @@ namespace LesserKnown.Audio
                s.volume = musicVolume; 
             }
             //volume player speakers 
-            playerSource.volume = playerVolume;
-            
-            //for tests ...
-            //playerSources = GameObject.FindGameObjectWithTag("Player").GetComponents<AudioSource>(); //somehow this doesnt work
-            //players = GameObject.FindGameObjectWithTag("Player").GetComponents<CharacterController2D>(); //somehow this doesnt work
+            foreach (AudioSource s in playerSources)
+            {
+               s.volume = musicVolume; 
+            } 
         }
 
         // Update is called once per frame
         void Update()
         {
-
+            currentPlayerSource = GetActivePlayerSource();
         }
 
         void Awake()
@@ -85,76 +75,53 @@ namespace LesserKnown.Audio
         public void PlayPlayerSource(AudioClip clip)
         {
             //Debug.Log("Speaker "+numero+"Sound : "+clip );
-            playerSource.PlayOneShot(clip);
+            currentPlayerSource.PlayOneShot(clip);
         }
         public void StopPlayerSource(AudioClip clip)
         {
-            playerSource.clip = clip;
-            playerSource.Stop();
+            currentPlayerSource.clip = clip;
+            currentPlayerSource.Stop();
         }
-
 
         //Managing the Animator event calls for all anims
-        public void PlaySndEvent(string call)
+        public void PlaySndEvent(AnimManager anim,string call)
         {
-            //Debug.Log("Audio manager Event call :"+call);
-            snd_EvtDict[call]();
+            if(anim.controller.is_active)
+                soundEvtDict[call]();
         }
 
-        private void InitDict()
+        private void _Init_AudioAnimEventsRefs()
         {
-            snd_EvtDict ["footsteps"] = Snd_playerMvt.PlayFootsteps;
-            snd_EvtDict ["climb"] = Snd_playerMvt.PlayClimb;
-            snd_EvtDict ["wallclimb"] = Snd_playerMvt.PlayWallClimb;
-            snd_EvtDict ["jump"] = Snd_playerMvt.PlayJump;
-            snd_EvtDict ["punch"] = Snd_playerMvt.PlayPunch;
-            snd_EvtDict ["hit"] = Snd_playerMvt.PlayHit;
-            snd_EvtDict ["teleport"] = Snd_playerMvt.PlayTeleport;
-            snd_EvtDict ["fall"] = Snd_playerMvt.PlayFall;
-            snd_EvtDict ["pickup"] = Snd_playerMvt.PlayPickUp;
-            snd_EvtDict ["throw"] = Snd_playerMvt.PlayThrow;
-
+            soundEvtDict ["footsteps"] = audioPlayerScript.PlayFootsteps;
+            soundEvtDict ["climb"] = audioPlayerScript.PlayClimb;
+            soundEvtDict ["wallclimb"] = audioPlayerScript.PlayWallClimb;
+            soundEvtDict ["jump"] = audioPlayerScript.PlayJump;
+            soundEvtDict ["punch"] = audioPlayerScript.PlayPunch;
+            soundEvtDict ["hit"] = audioPlayerScript.PlayHit;
+            soundEvtDict ["teleport"] = audioPlayerScript.PlayTeleport;
+            soundEvtDict ["fall"] = audioPlayerScript.PlayFall;
+            soundEvtDict ["pickup"] = audioPlayerScript.PlayPickUp;
+            soundEvtDict ["throw"] = audioPlayerScript.PlayThrow;
         }
 
+        public AudioSource[] GetMusicSources(){return musicSources;}
 
-        public AudioSource[] GetMusicSources()
+        public AudioSource GetActivePlayerSource()
         {
-            return musicSources;
+           foreach(CharacterController2D player in players)
+           {
+               //Debug.Log("Player active is : ");
+               if(player.is_active && player.is_fighter)
+                    return playerSources[1];
+                else
+                    return playerSources[0];
+           }
+           
+           return null;
         }
 
-        public AudioSource GetPlayerSource()
-        {
-            return playerSource;
-        }
+        public static AudioManager Instance { get { return _instance; } }  
 
-        public CharacterController2D GetPlayer()
-        {
-            return player;
-        }
-        public static AudioManager Instance
-        {
-            get { return _instance; } 
-        }  
-
-        //FOR TESTS ... 
-
-        // if many players AudioSources :  
-        // public void PlayPlayerSource(AudioClip clip,int numero)
-        // {
-        //     //Debug.Log("Speaker "+numero+"Sound : "+clip );
-        //     playerSources[numero].PlayOneShot(clip);
-        // }
-        // public void StopPlayerSource(AudioClip clip,int numero)
-        // {
-        //     playerSources[numero].clip = clip;
-        //     playerSources[numero].Stop();
-        // }
-
-        
-        // public AudioSource[] GetPlayerSources() //for tests
-        // {
-        //     return playerSources;
-        // }
     } 
 
 }
