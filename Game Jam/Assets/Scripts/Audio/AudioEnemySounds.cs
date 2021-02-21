@@ -12,6 +12,7 @@ namespace LesserKnown.Audio {
         public AudioClip[] mushDeath;
         public AudioClip[] mushAppear;
         public AudioClip[] mushHit;
+        public AudioClip[] mushPoisonExplo;
         private Dictionary<string, AudioClip[]> soundEvtDict_AI = new Dictionary<string, AudioClip[]>();
 
         //Range of value for the randoms
@@ -26,6 +27,11 @@ namespace LesserKnown.Audio {
 
         void Update()
         {
+        }
+
+        public void PlayPoisonCloud()
+        {
+            PlayEnemySound(mushPoisonExplo);
         }
 
         public void PlaySndEventAI(string call)

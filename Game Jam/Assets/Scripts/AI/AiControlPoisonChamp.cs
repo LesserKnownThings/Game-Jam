@@ -4,6 +4,7 @@ using UnityEngine;
 using LesserKnown.Player;
 using LesserKnown.Public;
 using System.Linq;
+using LesserKnown.Audio;
 
 namespace LesserKnown.AI {
     public class AiControlPoisonChamp : MonoBehaviour, Enemy_Interface
@@ -13,7 +14,7 @@ namespace LesserKnown.AI {
         public float appear_distance = 8f;
 
         private CharacterController2D[] players;
-
+        private AudioEnemySounds audioEnemyScrpt;
         public float spawn_delay = 4f;
         private float current_delay;
         public bool is_appeared = false;
@@ -23,6 +24,7 @@ namespace LesserKnown.AI {
 
         private void Start()
         {
+            audioEnemyScrpt = GetComponent<AudioEnemySounds>();
             anim = GetComponent<Animator>();
             InvokeRepeating("Appear", 0, .1f);
 
@@ -61,9 +63,9 @@ namespace LesserKnown.AI {
         /// Activates the Mushroom Burst Periodic Poison Region
         /// </summary>
         public void PoisonBurst(bool poison_active) //VISUAL TEMPORARY , WITH A CIRCLE
-        {
-            //add a PLaySoundAttack           
-                fakePoisonCloud.SetActive(poison_active);
+        {          
+            fakePoisonCloud.SetActive(poison_active);
+            audioEnemyScrpt.PlayPoisonCloud();
         }
 
 
