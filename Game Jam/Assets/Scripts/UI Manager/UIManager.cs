@@ -1,80 +1,69 @@
 ﻿using UnityEngine;
-using System.Collections;
+using LesserKnown.Player;
 using UnityEngine.SceneManagement;
+using System.Collections;
+using TMPro;
+using LesserKnown.Public;
+
 namespace LesserKnown.UI
 {
     public class UIManager: MonoBehaviour
-    {
-        public float info_timer_disable = 2f;
-        public CanvasGroup info_ui;
-        public CanvasGroup game_lost_ui;
-        public CanvasGroup game_won_ui;
+    {    
+        private bool menu_display;
+
+        public CanvasGroup menu_ui;
+        public CanvasGroup first_message;
+
+        [Header("Collectibles UI")]
+        public TextMeshProUGUI coin_text;
+        public TextMeshProUGUI heart_text;
 
         private void Start()
         {
-            game_lost_ui.gameObject.SetActive(false);
-            game_lost_ui.alpha = 0;
-
-            game_won_ui.gameObject.SetActive(false);
-            game_won_ui.alpha = 0f;
-
-            StartCoroutine(Disable_Delay());
+            menu_ui.alpha = 0f;
+            menu_ui.gameObject.SetActive(false);
         }
 
-        private IEnumerator Disable_Delay()
+        private void Update()
         {
-            yield return new WaitForSeconds(info_timer_disable);
-
-            while(info_ui.alpha > 0)
-            {
-                info_ui.alpha -= Time.deltaTime * 1.5f;
-                yield return null;
-            }
-
-            info_ui.gameObject.SetActive(false);
+            Collection_Manager();
         }
-
-        public void Game_Lost()
+        private void Collection_Manager()
         {
-            StartCoroutine(Game_LostIE());
+            coin_text.text = $"{PublicVariables.COINS:0} / {PublicVariables.MAX_COLLECTIBLES:0}";
+            heart_text.text = $"{PublicVariables.APPLES:0} / {PublicVariables.MAX_COLLECTIBLES:0}";
         }
 
-        private IEnumerator Game_LostIE()
+          
+
+        public void Display_Options()
         {
-            game_lost_ui.gameObject.SetActive(true);
-            while (game_lost_ui.alpha < 1)
-            {
-                game_lost_ui.alpha += Time.deltaTime * 1.5f;
-                yield return null;
-            }
-            
+
         }
 
-        public void Game_Won()
+        public void Resume_Game()
         {
-            StartCoroutine(Game_WonIE());
+
         }
 
-        private IEnumerator Game_WonIE()
-        {
-            game_won_ui.gameObject.SetActive(true);
-            while(game_won_ui.alpha < 1)
-            {
-                game_won_ui.alpha += Time.deltaTime;
-                yield return null;
-            }
-        }
-
-        public void Quit()
+        public void Quit_Game()
         {
             Application.Quit();
         }
 
-        public void ReloadLevel()
+        public void Continue()
         {
-            int _currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+            StartCoroutine(ContinueIE());
+        }
 
-            SceneManager.LoadScene(_currentSceneIndex);
+        private IEnumerator ContinueIE()
+        {
+            while(first_message.alpha > 0)
+            {
+                first_message.alpha -= Time.deltaTime;
+                yield return null;
+            }
+            first_message.gameObject.SetActive(false);
         }
     }
 }
