@@ -6,10 +6,21 @@ namespace LesserKnown.Network
 {
     public class NetworkSceneManagement : MonoBehaviour
     {
-        public Transform spawner;
+        public List<Transform> spawners = new List<Transform>();
+
+        private void Awake()
+        {
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                spawners.Add(transform.GetChild(i));
+            }
+        }
+
         private void Start()
         {
-            NetworkManager.Instance.InstantiatePlayer(position: spawner.position);
+            int _random = Random.Range(0, spawners.Count);
+
+            NetworkManager.Instance.InstantiatePlayer(position: spawners[_random].position);
         }
     }
 }

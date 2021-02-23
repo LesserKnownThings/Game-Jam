@@ -4,7 +4,8 @@ using System.Collections;
 using LesserKnown.Camera;
 using LesserKnown.TrapsAndHelpers;
 using System.Collections.Generic;
-using LesserKnown.AI;
+using LesserKnown.Interfaces;
+using LesserKnown.Network;
 using System;
 
 namespace LesserKnown.Player
@@ -13,7 +14,7 @@ namespace LesserKnown.Player
     /// This is a custom character controller
     /// It controlls all the player movements and the player behaviours
     /// </summary>
-    public class CharacterController2D : MonoBehaviour
+    public class CharacterController2D : MonoBehaviour, IPortalInterface
     {
 
         private Rigidbody2D rb;
@@ -21,6 +22,8 @@ namespace LesserKnown.Player
         private SpriteRenderer player_sprite;
         private AnimManager anim_manager;
         private CharacterController2D other_player;
+        [HideInInspector]
+        public bool portal_transition { get; set; }
         /// <summary>
         /// This is the CameraFollow script from LesserKnown.Camera attatched to the camera
         /// </summary>
@@ -45,7 +48,7 @@ namespace LesserKnown.Player
         
 
         [Space(10)]
-        // private PlayerNetwork player_network;
+        private PlayerNetwork player_network;
 
         /// <summary>
         /// This checks if the player can do a wall jump
@@ -75,7 +78,7 @@ namespace LesserKnown.Player
         /// Verfies if the player is looking right or left
         /// It's for local use only, in network you need to use the network variable
         /// </summary>
-        private bool local_left;
+        //private bool local_left;
 
         /// <summary>
         /// Verifies if the player has an object in hands
@@ -119,7 +122,7 @@ namespace LesserKnown.Player
             anim_manager = GetComponent<AnimManager>();
 
             //This is for network use only, it's not for this project
-            // player_network = GetComponent<PlayerNetwork>();
+             player_network = GetComponent<PlayerNetwork>();
             p_collider = GetComponent<Collider2D>();
             cam = UnityEngine.Camera.main.GetComponent<CameraFollow>();
           
@@ -137,8 +140,7 @@ namespace LesserKnown.Player
 
         private void Update()
         {
-            //player_sprite.flipX = player_network.left;
-            player_sprite.flipX = local_left;
+            player_sprite.flipX = player_network.left;
 
             //This changes the y velocity when touching a wall so it gives the feeling the player is sliding on the wall
             if (IsWallFalling())
@@ -179,7 +181,16 @@ namespace LesserKnown.Player
         }
 
 
-      
+        /*
+        public void Slide()
+        {
+            int direction = 1;
+            if (local_left)
+                direction = -1;
+
+            rb.AddForce(transform.right * direction * 100f, ForceMode2D.Impulse);
+            anim_manager.Slide();
+        }*/
    
      
         /// <summary>
@@ -229,37 +240,13 @@ namespace LesserKnown.Player
         /// </summary>
         public void Dead()
         {
-            anim_manager.Die_Anim();
-            if(!PublicVariables.IS_FUSIONED)
-            Reset_Position();
-            else
-            {
-                //Lose game ...
-            }
-
+            anim_manager.Die_Anim();           
+            //Need to create this funciton
         }
 
         private void Reset_Position()
         {
             transform.position = other_player.transform.position;
-        }
-
-        public void Get_Hit(int amount)
-        {
-            if (is_invicible)
-                return;
-
-            is_invicible = true;
-            anim_manager.Get_Hit();
-            bool death = PublicVariables.Lose_Health(amount);
-
-            if (death)
-            {
-                anim_manager.Die_Anim();
-                //Disable Network Player
-            }
-
-            StartCoroutine(Reset_InvicibilityIE());
         }
 
         private IEnumerator Reset_InvicibilityIE()
@@ -300,10 +287,10 @@ namespace LesserKnown.Player
 
         private void Flip(bool left)
         {
-            /* Set left on network
-            player_network.left = left;            */
+            // Set left on network
+            player_network.left = left;            
 
-            local_left = left;
+           // local_left = left;
         }
 
         /// <summary>
@@ -435,16 +422,16 @@ namespace LesserKnown.Player
         {
             List<RaycastHit2D> hits = new List<RaycastHit2D>();
 
-            if (local_left)
-                Physics2D.Raycast(transform.position, -transform.right, enemy_filter, hits, attack_distance);
-            else if(!local_left)
-                Physics2D.Raycast(transform.position, transform.right, enemy_filter, hits, attack_distance);
+            if (player_network.left)
+                Physics2D.Raycast(transform.position - new Vector3(0,.5f,0), -transform.right, enemy_filter, hits, attack_distance);
+            else if(!player_network.left)
+                Physics2D.Raycast(transform.position - new Vector3(0, .5f, 0), transform.right , enemy_filter, hits, attack_distance);
 
 
             if (hits.Count > 0)
             {
                 StartCoroutine(Blood_SplatterIE());
-                hits[0].transform.GetComponent<Enemy_Interface>().Get_Hit(1);               
+                hits[0].transform.GetComponent<IEnemy_Interface>().Get_Hit(1);               
             }
         }
 
@@ -455,7 +442,7 @@ namespace LesserKnown.Player
             blood_splatter.SetActive(false);
         }
 
-        #region Warrior Region
+
         public void Attack()
         {
             if (anim_manager.Is_Attacking())
@@ -463,27 +450,8 @@ namespace LesserKnown.Player
 
             anim_manager.Attack();
         }
-        #endregion
 
-        #region Solver Region
-        public void Pickup()
-        {
-            if (anim_manager.Has_Stop_Animation() || !can_pick_up)
-                return;
-
-
-            is_holding_object = !is_holding_object;
-            anim_manager.Pick_Throw(is_holding_object);
-        }
-
-        public bool IsLookingLeft()  // --------------------- for throw box right or left
-        {
-
-            return local_left;
-
-        }
-        #endregion
-
+   
         private void OnDrawGizmosSelected()
         {
             Gizmos.color = Color.green;
@@ -497,5 +465,16 @@ namespace LesserKnown.Player
 
         }
 
+        public void Teleport(float transition_duration)
+        {
+            portal_transition = true;
+            StartCoroutine(TeleportIE(transition_duration));
+        }
+
+        private IEnumerator TeleportIE(float transition_duration)
+        {            
+            yield return new WaitForSeconds(transition_duration);
+            portal_transition = false;
+        }
     }
 }

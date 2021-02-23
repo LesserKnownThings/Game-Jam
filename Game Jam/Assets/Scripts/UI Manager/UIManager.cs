@@ -4,66 +4,74 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using TMPro;
 using LesserKnown.Public;
+using UnityEngine.UI;
 
 namespace LesserKnown.UI
 {
     public class UIManager: MonoBehaviour
-    {    
-        private bool menu_display;
+    {
+        public GameObject menu_ui;
+        private bool menu_bool;
+        public GameObject options_ui;
+        private bool options_bool;
 
-        public CanvasGroup menu_ui;
-        public CanvasGroup first_message;
+        public GameObject music_ui;
+        public Image music_img;
+        public GameObject inputs_ui;
+        private bool inputs_bool = true;
+        public Image inputs_img;
 
-        [Header("Collectibles UI")]
-        public TextMeshProUGUI coin_text;
-        public TextMeshProUGUI heart_text;
-
-        private void Start()
+       
+        private void UI_Display()
         {
-            menu_ui.alpha = 0f;
-            menu_ui.gameObject.SetActive(false);
+            menu_ui.SetActive(menu_bool);
+            options_ui.SetActive(options_bool);
+            music_ui.SetActive(!inputs_bool);
+            inputs_ui.SetActive(inputs_bool);
+
+            if (inputs_bool)
+            {
+                inputs_img.color = Color.white;
+                music_img.color = Color.black;
+            }else if (!inputs_bool)
+            {
+                inputs_img.color = Color.black;
+                music_img.color = Color.white;
+            }
         }
 
         private void Update()
         {
-            Collection_Manager();
+            UI_Display();
         }
-        private void Collection_Manager()
+
+        public void Menu_Interaction()
         {
-            coin_text.text = $"{PublicVariables.COINS:0} / {PublicVariables.MAX_COLLECTIBLES:0}";
-            heart_text.text = $"{PublicVariables.APPLES:0} / {PublicVariables.MAX_COLLECTIBLES:0}";
+            menu_bool = !menu_bool;
+            options_bool = false;
         }
 
-          
-
-        public void Display_Options()
+        public void Options_Interaction()
         {
-
+            options_bool = !options_bool;
+            menu_bool = !options_bool;
         }
 
-        public void Resume_Game()
+        public void Inputs_Interaction()
         {
+            inputs_bool = true;
 
         }
 
-        public void Quit_Game()
+        public void Music_Interaction()
+        {
+            inputs_bool = false; 
+
+        }
+
+        public void Exit_Interaction()
         {
             Application.Quit();
-        }
-
-        public void Continue()
-        {
-            StartCoroutine(ContinueIE());
-        }
-
-        private IEnumerator ContinueIE()
-        {
-            while(first_message.alpha > 0)
-            {
-                first_message.alpha -= Time.deltaTime;
-                yield return null;
-            }
-            first_message.gameObject.SetActive(false);
         }
     }
 }

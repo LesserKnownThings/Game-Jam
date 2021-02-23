@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1771897006513895059}
   - component: {fileID: 1771897006513895058}
   - component: {fileID: 5814072790979076612}
+  - component: {fileID: 4911843531130335438}
   - component: {fileID: 1771897006513895063}
   - component: {fileID: 1771897006513895056}
   - component: {fileID: 1771897006513895054}
@@ -104,8 +105,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   disable_scripts:
   - {fileID: 1771897006513895063}
+  - {fileID: 4911843531130335438}
   left: 0
-  sprite: {fileID: 0}
+  health: 0
+  gold: 0
+--- !u!114 &4911843531130335438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1771897006513895062}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c858856920b9b0429c050b76155f40c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  health: 9
+  gold: 0
 --- !u!114 &1771897006513895063
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -118,10 +135,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8e2a26a1e331fd459752ef1435ec05d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movement_speed: 7
+  movement_speed: 8
   climbing_speed: 4
   jump_force: 21.5
-  wall_jump_force: 7
+  wall_jump_force: 5
   jump_key: 32
 --- !u!114 &1771897006513895056
 MonoBehaviour:
@@ -135,6 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52d5a07bab2dfc24291e1813fa96d649, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  blood_splatter: {fileID: 7353777701533157890}
   ground:
     serializedVersion: 2
     m_Bits: 8
@@ -156,13 +174,12 @@ MonoBehaviour:
     minNormalAngle: 0
     maxNormalAngle: 0
   fall_modifier: 1.4
-  box_placer: {fileID: 0}
-  current_picked_box: {fileID: 0}
   wall_jump: 0
   is_climbing_ladder: 0
   is_invicible: 0
   horizontalEnable: 0
-  attack_distance: 1
+  attack_distance: 1.15
+  direction_vector: 0
   boundary_size: {x: 0.4, y: 0.2}
   boundary_placement: {x: 0, y: 1}
   boundary_size_r: {x: 0.2, y: 0.65}
@@ -213,9 +230,9 @@ Animator:
   m_GameObject: {fileID: 1771897006513895062}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: c9f97c0ccf8f21346adcdce423746658, type: 2}
+  m_Controller: {fileID: 9100000, guid: 64367aad2f890b242974923ca579fcc5, type: 2}
   m_CullingMode: 0
-  m_UpdateMode: 0
+  m_UpdateMode: 1
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_WarningMessage: 
@@ -250,8 +267,16 @@ PrefabInstance:
       value: CFX2_Blood
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: bc98890f6028f444eaa7789bde5e2eeb, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: bc98890f6028f444eaa7789bde5e2eeb, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 100002, guid: bc98890f6028f444eaa7789bde5e2eeb, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: bc98890f6028f444eaa7789bde5e2eeb, type: 3}
       propertyPath: m_RootOrder
@@ -307,6 +332,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bc98890f6028f444eaa7789bde5e2eeb, type: 3}
+--- !u!1 &7353777701533157890 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 100000, guid: bc98890f6028f444eaa7789bde5e2eeb, type: 3}
+  m_PrefabInstance: {fileID: 7353777701533191330}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7353777701533324834 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: bc98890f6028f444eaa7789bde5e2eeb, type: 3}

@@ -19,8 +19,7 @@ namespace LesserKnown.Player
         /// The ID for the Attack animation
         /// </summary>
         private int attack_hash = Animator.StringToHash("Base Layer.Attack");
-        private int pickup_hash = Animator.StringToHash("Base Layer.Object Picked.Pick Up");
-        private int throw_hash = Animator.StringToHash("Base Layer.Object Picked.Throw");
+        private int slide_hash = Animator.StringToHash("Base Layer.Slide");
         private AnimatorStateInfo anim_state;
 
         private void Start()
@@ -55,24 +54,10 @@ namespace LesserKnown.Player
         {
             return anim_state.fullPathHash == attack_hash;
         }
-
-        /// <summary>
-        /// Verifies if the player is currently picking up things
-        /// </summary>
-        /// <returns></returns>
-        private bool Is_Pickingup()
-        {
-            return anim_state.fullPathHash == pickup_hash;
-        }
-
-        private bool Is_Throwing()
-        {
-            return anim_state.fullPathHash == throw_hash;
-        }
-
+    
         public bool Has_Stop_Animation()
         {
-            if (Is_Throwing() || Is_Pickingup())
+            if (anim_state.fullPathHash == slide_hash)
                 return true;
 
             return false;
@@ -187,7 +172,12 @@ namespace LesserKnown.Player
         public void PlaySndEvent(string call)
         {
             //Debug.Log("Anim manager Event call");
-            AudioManager.Instance.PlaySndEvent(this,call);
+         //   AudioManager.Instance.PlaySndEvent(this,call);
+        }
+
+        public void Slide()
+        {
+            anim.SetTrigger("Slide");
         }
     }
 }

@@ -5,7 +5,7 @@ using LesserKnown.Player;
 
 namespace LesserKnown.AI
 {
-    public class BossControl : MonoBehaviour, Enemy_Interface
+    public class BossControl : MonoBehaviour
     {
         public int boss_health = 15;
         private bool is_invicible;
@@ -64,7 +64,6 @@ namespace LesserKnown.AI
                     transform.position -= new Vector3(_dir.x / 2f,0,0);
                     anim.SetTrigger("Move");
                     current_movement_cd = 0f;
-                    if(Player_Too_Close())current_player.GetComponent<CharacterController2D>().Get_Hit(1);
                 }
                 current_movement_cd += Time.deltaTime;
             }

@@ -46,6 +46,11 @@ namespace LesserKnown.Player
                 controller.Attack();
             }
 
+
+            if (Input.GetKeyDown(KeyCode.C))
+            {
+            //    controller.Slide();
+            }
         }
 
         private void FixedUpdate()
